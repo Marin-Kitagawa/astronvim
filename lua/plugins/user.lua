@@ -18,6 +18,12 @@ return {
   -- == Examples of Overriding Plugins ==
 
   -- customize alpha options
+  --
+  {
+    "goolord/alpha-nvim",
+    enabled = false,
+  },
+  --[[
   {
     "goolord/alpha-nvim",
     opts = function(_, opts)
@@ -38,6 +44,7 @@ return {
       return opts
     end,
   },
+  --]]
 
   -- You can disable default plugins as follows:
   { "max397574/better-escape.nvim", enabled = false },
