@@ -7,28 +7,24 @@ return {
   },
   build = "cargo build --release",
   keys = {
-	  -- chartoggle
-	  {
-	    '<C-;>',
-	    function()
-	  	  require('blink.chartoggle').toggle_char_eol(';')
-	    end,
-	    mode = { 'n', 'v' },
-	    desc = 'Toggle ; at eol',
-	  },
-	  {
-	    ',',
-	    function()
-	  	  require('blink.chartoggle').toggle_char_eol(',')
-	    end,
-	    mode = { 'n', 'v' },
-	    desc = 'Toggle , at eol',
-	  },
+    -- chartoggle
+    {
+      "<C-;>",
+      function() require("blink.chartoggle").toggle_char_eol ";" end,
+      mode = { "n", "v" },
+      desc = "Toggle ; at eol",
+    },
+    {
+      ",",
+      function() require("blink.chartoggle").toggle_char_eol "," end,
+      mode = { "n", "v" },
+      desc = "Toggle , at eol",
+    },
 
-	  -- -- tree
-	  -- { '<C-e>', '<cmd>BlinkTree reveal<cr>', desc = 'Reveal current file in tree' },
-	  -- { '<leader><E', '<cmd>BlinkTree toggle<cr>', desc = 'Reveal current file in tree' },
-	  -- { '<leader><leader>e', '<cmd>BlinkTree toggle-focus<cr>', desc = 'Toggle file tree focus' },
+    -- -- tree
+    -- { '<C-e>', '<cmd>BlinkTree reveal<cr>', desc = 'Reveal current file in tree' },
+    -- { '<leader><E', '<cmd>BlinkTree toggle<cr>', desc = 'Reveal current file in tree' },
+    -- { '<leader><leader>e', '<cmd>BlinkTree toggle-focus<cr>', desc = 'Toggle file tree focus' },
   },
   ---@module "blink.cmp"
   ---@type blink.cmp.Config
@@ -55,10 +51,10 @@ return {
     },
 
     completion = {
-      menu = { 
+      menu = {
         auto_show = true,
       },
-      ghost_text = { enabled = false },
+      ghost_text = { enabled = true },
     },
 
     sources = {
@@ -66,12 +62,12 @@ return {
         "lsp",
         "path",
         "snippets",
-        "buffer"
+        "buffer",
       },
     },
 
     fuzzy = {
-      implementation = "prefer_rust_with_warning"
+      implementation = "prefer_rust_with_warning",
     },
 
     -- Experimental signature help
@@ -82,12 +78,8 @@ return {
       ---@diagnostic disable-next-line: assign-type-mismatch
       sources = function()
         local type = vim.fn.getcmdtype()
-        if type == "/" or type == "?" then
-          return { "buffer" }
-        end
-        if type == ":" or type == "@" then
-          return { "cmdline", "path" }
-        end
+        if type == "/" or type == "?" then return { "buffer" } end
+        if type == ":" or type == "@" then return { "cmdline", "path" } end
         return {}
       end,
       completion = {
@@ -95,5 +87,5 @@ return {
         ghost_text = { enabled = false },
       },
     },
-  }
+  },
 }
