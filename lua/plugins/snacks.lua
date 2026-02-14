@@ -4,7 +4,9 @@ return {
   lazy = false,
   ---@type snacks.Config
   opts = {
+    animate = { enabled = true },
     bigfile = { enabled = true },
+    bufdelete = { enabled = true },
     dashboard = { 
       enabled = true,
       ---@class snacks.dashboard.Config
@@ -20,7 +22,9 @@ return {
       preset = {
         -- Defaults to a picker that supports `fzf-lua`, `telescope.nvim` and `mini.pick`
         ---@type fun(cmd:string, opts:table)|nil
-        pick = nil,
+        pick = function(cmd, opts)
+          return Snacks.picker(cmd, opts)
+        end,
         -- Used by the `keys` section to show keymaps.
         -- Set your custom keymaps here.
         -- When using a function, the `items` argument are the default keymaps.
@@ -76,19 +80,33 @@ return {
         { section = "startup" },
       },
     },
-    explorer = { enabled = true },
-    indent = { enabled = true },
-    input = { enabled = true },
+    debug = { enabled = true },  -- Debugging helpers
+    dim = { enabled = true },  -- Dim inactive windows
+    explorer = { enabled = true },  -- File explorer
+    git = { enabled = true },  -- Git utilities
+    gitbrowse = { enabled = true },  -- Open in browser
+    indent = { enabled = true, animate = { enabled = true } }, -- Indent guides with animation
+    input = { enabled = true }, -- Better `vim.ui.input`
+    layout = { enabled = true }, -- Window layout management
+    lazygit = { enabled = true }, -- LazyGit integration
+    log = { enabled = true },  -- Logging
     notifier = {
       enabled = true,
       timeout = 3000,
+    },  -- Better notifications
+    picker = { 
+      enabled = true,
+      -- Configuring picker to be beautiful
+      ui_select = true,  -- Replace vim.ui.select
     },
-    picker = { enabled = true },
-    quickfile = { enabled = true },
-    scope = { enabled = true },
-    scroll = { enabled = true },
-    statuscolumn = { enabled = true },
-    words = { enabled = true },
+    profiler = { enabled = true },  -- Profiler
+    quickfile = { enabled = true },  -- Fast file loading
+    rename = { enabled = true },  -- LSP rename
+    scope = { enabled = true },  -- Scope detection
+    scroll = { enabled = true },  -- Smooth scrolling
+    statuscolumn = { enabled = true },  -- Pretty status column
+    terminal = { enabled = true },  -- Terminal
+    words = { enabled = true },  -- Auto-highlight references
     styles = {
       notification = {
         -- wo = { wrap = true } -- Wrap notifications
