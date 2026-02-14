@@ -4,7 +4,7 @@ return {
   version = "*",
   dependencies = {
     "rafamadriz/friendly-snippets", -- Required for snippets
-  }
+  },
   build = "cargo build --release",
   keys = {
 	  -- chartoggle
