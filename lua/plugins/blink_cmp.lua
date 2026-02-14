@@ -66,8 +66,12 @@ return {
         "lsp",
         "path",
         "snippets",
-        "buffers"
+        "buffer"
       },
+    },
+
+    fuzzy = {
+      implementation = "prefer_rust_with_warning"
     },
 
     -- Experimental signature help
