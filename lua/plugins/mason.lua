@@ -1,6 +1,4 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
--- Customize Mason plugins
+-- Customize Mason plugins to auto-install tools
 
 ---@type LazySpec
 return {
@@ -12,7 +10,11 @@ return {
       -- add more things to the ensure_installed table protecting against community packs modifying it
       opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
         "lua_ls",
-        -- add more arguments for adding more language servers
+        "biome", -- json, javascript, typescript
+        "vtsls", -- javascript, typescript (LSP)
+        "nil_ls", -- nix (LSP)
+        "ruff", -- python (LSP)
+        -- "stylua" is a formatter, handled in mason-null-ls below
       })
     end,
   },
@@ -23,9 +25,13 @@ return {
     opts = function(_, opts)
       -- add more things to the ensure_installed table protecting against community packs modifying it
       opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
-        "prettier",
-        "stylua",
-        -- add more arguments for adding more null-ls sources
+        "prettier", -- angular, css, flow, graphql, html, json, jsx, javascript, less, markdown, scss, typescript, vue, yaml
+        "stylua", -- lua
+        "luacheck", -- lua (linter)
+        "biome", -- json, javascript, typescript (formatter/linter)
+        "ruff", -- python (linter/formatter)
+        "black", -- python (formatter)
+        "nixfmt", -- nix (formatter)
       })
     end,
   },
@@ -35,8 +41,10 @@ return {
     opts = function(_, opts)
       -- add more things to the ensure_installed table protecting against community packs modifying it
       opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
-        "python",
-        -- add more arguments for adding more debuggers
+        "python", -- debugpy
+        "cpptools", -- c, c++, rust
+        "bash-debug-adapter", -- bash
+        "delve", -- go (go-debug-adapter)
       })
     end,
   },
