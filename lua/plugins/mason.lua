@@ -9,11 +9,12 @@ return {
     opts = function(_, opts)
       -- add more things to the ensure_installed table protecting against community packs modifying it
       opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
-        "lua_ls",
         "biome", -- json, javascript, typescript
-        "vtsls", -- javascript, typescript (LSP)
+        "lua_ls", -- lua
         "nil_ls", -- nix (LSP)
         "ruff", -- python (LSP)
+        "vtsls", -- javascript, typescript (LSP)
+        "yamlls", -- YAML (LSP)
         -- "stylua" is a formatter, handled in mason-null-ls below
       })
     end,
@@ -25,13 +26,15 @@ return {
     opts = function(_, opts)
       -- add more things to the ensure_installed table protecting against community packs modifying it
       opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
-        "prettier", -- angular, css, flow, graphql, html, json, jsx, javascript, less, markdown, scss, typescript, vue, yaml
-        "stylua", -- lua
-        "luacheck", -- lua (linter)
         "biome", -- json, javascript, typescript (formatter/linter)
-        "ruff", -- python (linter/formatter)
         "black", -- python (formatter)
+        "luacheck", -- lua (linter)
         "nixfmt", -- nix (formatter)
+        "prettier", -- angular, css, flow, graphql, html, json, jsx, javascript, less, markdown, scss, typescript, vue, yaml
+        "ruff", -- python (linter/formatter)
+        "stylua", -- lua
+        "yamlfmt", -- YAML formatter
+        "yamllint", -- YAML Linter
       })
     end,
   },
