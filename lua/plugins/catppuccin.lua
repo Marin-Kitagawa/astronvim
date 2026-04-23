@@ -51,6 +51,15 @@ return {
     "HiPhish/rainbow-delimiters.nvim",
     event = "BufReadPost",
     config = function()
+      -- Neovim 0.12.1 changed get_parser to return nil instead of erroring;
+      -- rainbow-delimiters expects the old behavior. Remove once plugin is updated.
+      local orig_get_parser = vim.treesitter.get_parser
+      vim.treesitter.get_parser = function(...)
+        local parser = orig_get_parser(...)
+        if not parser then error("no parser") end
+        return parser
+      end
+
       local rainbow = require "rainbow-delimiters"
       vim.g.rainbow_delimiters = {
         strategy = {
