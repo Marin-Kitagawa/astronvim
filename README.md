@@ -1,8 +1,24 @@
 # AstroNvim Template
 
-**NOTE:** This is for AstroNvim v4+
+**NOTE:** This is for AstroNvim v6+
 
 A template for getting started with [AstroNvim](https://github.com/AstroNvim/AstroNvim)
+
+## ⚠️ Read this before running `:Lazy update`
+
+This machine has **no C compiler**, so `:TSInstall` and `:TSUpdate` cannot work. Treesitter
+parsers are built with zig via [`scripts/build-ts-parser.ps1`](scripts/build-ts-parser.ps1).
+
+After `:Lazy update` moves `nvim-treesitter`, rebuild the parsers or highlighting will
+break with `Query error ... Invalid field name`:
+
+```powershell
+.\scripts\build-ts-parser.ps1 -All
+```
+
+Also note that pinned plugins need `:Lazy update` run **twice**.
+
+Full details, rationale and troubleshooting: **[`docs/maintenance.md`](docs/maintenance.md)**.
 
 ## 🛠️ Installation
 

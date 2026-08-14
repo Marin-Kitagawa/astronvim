@@ -20,17 +20,35 @@
 .PARAMETER Languages
     Language names as nvim-treesitter knows them, e.g. json, typescript, rust.
 
+.PARAMETER All
+    Rebuild every language already present in site/parser. This is the post-`:Lazy update`
+    command: when nvim-treesitter moves, its queries move with it, and parsers built
+    against the previous revisions start failing with
+    "Query error ... Invalid field name".
+
 .EXAMPLE
     .\build-ts-parser.ps1 json yaml rust
+    Install three new languages.
+
+.EXAMPLE
+    .\build-ts-parser.ps1 -All
+    Rebuild everything after `:Lazy update` bumped nvim-treesitter.
 
 .NOTES
-    Re-run after `:Lazy update` bumps nvim-treesitter, so parsers track the new revisions.
-    Verify afterwards with `:checkhealth nvim-treesitter`.
+    Verify afterwards with `:checkhealth nvim-treesitter`. Note that the healthcheck
+    does NOT detect the missing C compiler -- it only checks for the tree-sitter CLI,
+    tar and curl, all of which are present. The compiler failure only shows up when
+    something actually tries to build a parser.
 #>
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = "Named")]
 param(
-    [Parameter(Mandatory = $true, Position = 0, ValueFromRemainingArguments = $true)]
+    [Parameter(ParameterSetName = "Named", Mandatory = $true, Position = 0, ValueFromRemainingArguments = $true)]
     [string[]] $Languages,
+
+    # Rebuild every language currently installed. Use this after `:Lazy update`
+    # bumps nvim-treesitter, so parsers track the revisions its queries expect.
+    [Parameter(ParameterSetName = "All", Mandatory = $true)]
+    [switch] $All,
 
     [string] $Zig = "C:\Users\Ahri\Software\Ziglang\zig.exe"
 )
@@ -46,6 +64,13 @@ $specF = Join-Path $work "specs.json"
 $luaF  = Join-Path $work "dump.lua"
 
 New-Item -ItemType Directory -Force -Path $work, "$site\parser", "$site\queries" | Out-Null
+
+if ($All) {
+    $Languages = Get-ChildItem "$site\parser" -Filter *.so -ErrorAction SilentlyContinue |
+        ForEach-Object { $_.BaseName } | Sort-Object
+    if (-not $Languages) { throw "no parsers installed in $site\parser - name languages explicitly instead" }
+    Write-Host "rebuilding $($Languages.Count) installed languages: $($Languages -join ', ')`n"
+}
 
 # --- ask nvim-treesitter for each grammar's url + pinned revision ---------------
 $want = ($Languages | ForEach-Object { "'$_'" }) -join ", "
