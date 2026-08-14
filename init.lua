@@ -18,46 +18,47 @@ end
 require "lazy_setup"
 require "polish"
 
+-- Astrotheme is not managed via a Lazy plugin spec, so configure it here directly.
 require("astrotheme").setup({
   palette = "astrodark",
   background = {
     light = "astrolight",
-    dark = "astrodark",
+    dark  = "astrodark",
   },
+
   style = {
-    transparent = false,
-    inactive = true,
-    float = true,
-    neotree = true,
-    border = true,
-    title_invert = true,
-    italic_comments = true,
+    transparent        = false,
+    inactive           = true,
+    float              = true,
+    neotree            = true,
+    border             = true,
+    title_invert       = true,
+    italic_comments    = true,
     simple_syntax_colors = true,
   },
-  termguicolors = true,
+
+  termguicolors  = true,
   terminal_color = true,
   plugin_default = "auto",
+
+  -- Disable built-in highlights for plugins we style ourselves
   plugins = {
-    ["noice.nvim"] = false,
+    ["noice.nvim"]      = false,
     ["bufferline.nvim"] = false,
   },
+
   palettes = {
     global = {
-      my_grey = "#ebebeb",
+      my_grey  = "#ebebeb",
       my_color = "#ffffff",
     },
     astrodark = {
-      ui = {
-        red = "#800010",
-        accent = "#CC83E3",
-      },
-      syntax = {
-        cyan = "#800010",
-        comments = "#CC83E3",
-      },
+      ui     = { red = "#800010", accent = "#CC83E3" },
+      syntax = { cyan = "#800010", comments = "#CC83E3" },
       my_color = "#000000",
     },
   },
+
   highlights = {
     global = {
       modify_hl_groups = function(hl, c)
@@ -67,10 +68,31 @@ require("astrotheme").setup({
     },
     astrodark = {
       modify_hl_groups = function(hl, c)
-        hl.Comment.fg = c.my_color
+        hl.Comment.fg     = c.my_color
         hl.Comment.italic = true
       end,
       ["@String"] = { fg = "#ff00ff", bg = "NONE" },
     },
   },
 })
+
+-- ── Shell (PowerShell on Windows) ─────────────────────────────────────────
+vim.o.shell        = "pwsh"
+vim.o.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+vim.o.shellredir   = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
+vim.o.shellpipe    = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
+vim.o.shellquote   = ""
+vim.o.shellxquote  = ""
+
+-- ── UFO folding (disabled — kept for reference) ───────────────────────────
+-- vim.o.foldcolumn     = '1'
+-- vim.o.foldlevel      = 99
+-- vim.o.foldlevelstart = 99
+-- vim.o.foldenable     = true
+-- vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
+-- vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+-- require('ufo').setup({
+--   provider_selector = function(bufnr, filetype, buftype)
+--     return { 'treesitter', 'indent' }
+--   end,
+-- })

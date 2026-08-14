@@ -1,9 +1,13 @@
--- Override AstroNvim v4's aerial pin.
--- AstroNvim v4's lazy_snapshot pins aerial.nvim to `version = "^2.2"` (-> v2.7.0),
--- which crashes on Neovim 0.12+ ("attempt to call method 'type' (a nil value)" in
--- treesitter/extensions.lua). aerial <4.0 used `iter_matches({ all = false })`, an
--- API behavior removed in nvim 0.12. aerial 4.0.0 dropped support for nvim <0.12 and
--- fixed the treesitter backend, so we track ^4 here to clear the ^2.2 ceiling.
+-- Unpin aerial from AstroNvim's lazy_snapshot (`version = "^2.2"`).
+--
+-- aerial 2.x's treesitter backend calls `Query:iter_matches(..., { all = false })`.
+-- Neovim 0.12 dropped that option, so every capture now comes back as a *list*
+-- of nodes instead of a single node. The extension code then does
+-- `level_node:type()` on a plain table and blows up with:
+--   backends/treesitter/extensions.lua:115: attempt to call method 'type' (a nil value)
+--
+-- Fixed upstream in aerial v3.1.0 (commit f93dcee); v4.0.0 additionally requires
+-- Neovim >= 0.12, which this setup runs.
 return {
   "stevearc/aerial.nvim",
   version = "^4",

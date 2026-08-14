@@ -1,4 +1,6 @@
--- Customize Mason plugins to auto-install tools
+if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
+
+-- Customize Mason plugins
 
 ---@type LazySpec
 return {
@@ -9,13 +11,8 @@ return {
     opts = function(_, opts)
       -- add more things to the ensure_installed table protecting against community packs modifying it
       opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
-        "biome", -- json, javascript, typescript
-        "lua_ls", -- lua
-        "nil_ls", -- nix (LSP)
-        "ruff", -- python (LSP)
-        "vtsls", -- javascript, typescript (LSP)
-        "yamlls", -- YAML (LSP)
-        -- "stylua" is a formatter, handled in mason-null-ls below
+        "lua_ls",
+        -- add more arguments for adding more language servers
       })
     end,
   },
@@ -26,15 +23,9 @@ return {
     opts = function(_, opts)
       -- add more things to the ensure_installed table protecting against community packs modifying it
       opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
-        "biome", -- json, javascript, typescript (formatter/linter)
-        "black", -- python (formatter)
-        "luacheck", -- lua (linter)
-        "nixfmt", -- nix (formatter)
-        "prettier", -- angular, css, flow, graphql, html, json, jsx, javascript, less, markdown, scss, typescript, vue, yaml
-        "ruff", -- python (linter/formatter)
-        "stylua", -- lua
-        "yamlfmt", -- YAML formatter
-        "yamllint", -- YAML Linter
+        "prettier",
+        "stylua",
+        -- add more arguments for adding more null-ls sources
       })
     end,
   },
@@ -44,10 +35,8 @@ return {
     opts = function(_, opts)
       -- add more things to the ensure_installed table protecting against community packs modifying it
       opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
-        "python", -- debugpy
-        "cpptools", -- c, c++, rust
-        "bash-debug-adapter", -- bash
-        "delve", -- go (go-debug-adapter)
+        "python",
+        -- add more arguments for adding more debuggers
       })
     end,
   },
