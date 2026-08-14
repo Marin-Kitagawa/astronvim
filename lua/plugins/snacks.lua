@@ -37,13 +37,18 @@ return {
         },
         -- Used by the `header` section
         header = [[
-`7MMM.     ,MMF'      `7MM                                                    .g8"""bgd                                   
-  MMMb    dPMM          MM                                                  .dP'     `M                                   
-  M YM   ,M MM  ,p6"bo  MM  ,MP'.gP"Ya `7MMpMMMb.  `7MMpMMMb.   ,6"Yb.      dM'       ` `7Mb,od8 ,6"Yb.  ,p6"bo   .gP"Ya  
-  M  Mb  M' MM 6M'  OO  MM ;Y  ,M'   Yb  MM    MM    MM    MM  8)   MM      MM            MM' "'8)   MM 6M'  OO  ,M'   Yb 
-  M  YM.P'  MM 8M       MM;Mm  8M""""""  MM    MM    MM    MM   ,pm9MM      MM.    `7MMF' MM     ,pm9MM 8M       8M"""""" 
-  M  `YM'   MM YM.    , MM `Mb.YM.    ,  MM    MM    MM    MM  8M   MM      `Mb.     MM   MM    8M   MM YM.    , YM.    , 
-.JML. `'  .JMML.YMbmd'.JMML. YA.`Mbmmd'.JMML  JMML..JMML  JMML.`Moo9^Yo.      `"bmmmdPY .JMML.  `Moo9^Yo.YMbmd'   `Mbmmd' ]]
+8888888      888                                                                 888b     d888 d8b 888                      
+  888        888                                                                 8888b   d8888 Y8P 888                      
+  888        888                                                                 88888b.d88888     888                      
+  888        888  .d88b.  888  888  .d88b.       888  888  .d88b.  888  888      888Y88888P888 888 888888 88888888 888  888 
+  888        888 d88""88b 888  888 d8P  Y8b      888  888 d88""88b 888  888      888 Y888P 888 888 888       d88P  888  888 
+  888        888 888  888 Y88  88P 88888888      888  888 888  888 888  888      888  Y8P  888 888 888      d88P   888  888 
+  888        888 Y88..88P  Y8bd8P  Y8b.          Y88b 888 Y88..88P Y88b 888      888   "   888 888 Y88b.   d88P    Y88b 888 
+8888888      888  "Y88P"    Y88P    "Y8888        "Y88888  "Y88P"   "Y88888      888       888 888  "Y888 88888888  "Y88888 
+                                                      888                                                               888 
+                                                 Y8b d88P                                                          Y8b d88P 
+                                                  "Y88P"                                                            "Y88P"  
+        ]]
       },
       -- item field formatters
       formats = {
