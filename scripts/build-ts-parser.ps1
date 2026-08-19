@@ -1,18 +1,21 @@
 <#
 .SYNOPSIS
-    Build nvim-treesitter parsers with zig, bypassing the tree-sitter CLI's MSVC-only build.
+    Build nvim-treesitter parsers with zig, bypassing the tree-sitter CLI entirely.
 
 .DESCRIPTION
-    AstroNvim v6 uses the `main` branch of nvim-treesitter, which compiles every parser
-    on demand via `tree-sitter build`. That path shells out to MSVC (`cl.exe`) on Windows,
-    which is not installed on this machine -- so `:TSInstall` always fails with
-    "Failed to execute the C compiler ... Error: program not found".
+    A fallback for `:TSInstall` / `:TSUpdate`, which normally handle this themselves.
 
-    This script does the same work using zig as the C compiler: it reads the grammar URL
-    and pinned revision straight out of nvim-treesitter's own `parsers.lua`, clones the
-    grammar at that exact revision, compiles it into a shared object, and installs it
-    alongside its queries in the location nvim-treesitter expects
-    (`stdpath('data')/site/{parser,queries}`).
+    nvim-treesitter `main` compiles parsers via `tree-sitter build`, which shells out to
+    MSVC (`cl.exe`) on Windows. There is no usable MSVC here, so the config points `CC`
+    at a shim (scripts/zig-cl.c) that re-execs `zig cc`, and the normal commands work.
+
+    This script is an independent path to the same result: it skips the tree-sitter CLI
+    entirely. Use it if `:TSUpdate` ever breaks.
+
+    It reads the grammar URL and pinned revision straight out of nvim-treesitter's own
+    `parsers.lua`, clones the grammar at that exact revision, compiles it with zig into a
+    shared object, and installs it alongside its queries where nvim-treesitter expects
+    them (`stdpath('data')/site/{parser,queries}`).
 
     Because the revision comes from nvim-treesitter, the built parser always matches the
     queries shipped for it -- mismatches show up as "Query error ... Invalid field name".
@@ -35,10 +38,9 @@
     Rebuild everything after `:Lazy update` bumped nvim-treesitter.
 
 .NOTES
-    Verify afterwards with `:checkhealth nvim-treesitter`. Note that the healthcheck
-    does NOT detect the missing C compiler -- it only checks for the tree-sitter CLI,
-    tar and curl, all of which are present. The compiler failure only shows up when
-    something actually tries to build a parser.
+    Verify afterwards with `:checkhealth nvim-treesitter`. Note that the healthcheck does
+    not check for a C compiler at all -- only for the tree-sitter CLI, tar and curl. It
+    reports OK regardless, so it cannot tell you whether builds will succeed.
 #>
 [CmdletBinding(DefaultParameterSetName = "Named")]
 param(

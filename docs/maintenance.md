@@ -22,14 +22,15 @@ Two things about this machine drive everything below.
 1. **Neovim 0.12 changed the treesitter query API.** Plugins written for the old API
    crash. This was fixed by upgrading AstroNvim v4 → v6, which moves nvim-treesitter to
    its `main` branch.
-2. **There is no C compiler on this machine.** No `cl.exe`, no MSVC, no Windows SDK, no
-   gcc/clang — only zig. nvim-treesitter `main` compiles every parser on demand, so
-   `:TSInstall` and `:TSUpdate` **cannot work**. Parsers are built with
-   [`scripts/build-ts-parser.ps1`](../scripts/build-ts-parser.ps1) instead.
+2. **There is no MSVC on this machine, but zig stands in for it.** nvim-treesitter `main`
+   compiles every parser on demand and expects `cl.exe`. A shim
+   ([`scripts/zig-cl.c`](../scripts/zig-cl.c)) translates what the build system emits
+   into something zig accepts, and `lua/plugins/treesitter-zig-cc.lua` points `CC` at it
+   automatically. **`:TSInstall` and `:TSUpdate` work normally.**
 
 The single most important consequence:
 
-> **After `:Lazy update` moves nvim-treesitter, run `scripts\build-ts-parser.ps1 -All`.**
+> **After `:Lazy update` moves nvim-treesitter, run `:TSUpdate`.**
 > Skipping this leaves parsers built against old grammar revisions while the queries have
 > moved on, and highlighting breaks with `Query error ... Invalid field name`.
 
@@ -49,7 +50,7 @@ The single most important consequence:
 | aerial.nvim | `^3` (pinned by AstroNvim) |
 | tree-sitter CLI | 0.26.12, installed via Mason |
 | zig | 0.16.0-dev, `C:\Users\Ahri\Software\Ziglang\zig.exe` |
-| C compiler | **none** — this is the constraint everything else works around |
+| C compiler | no MSVC/gcc/clang. zig plus the `scripts/zig-cl.c` shim stand in — see below |
 
 `lua/lazy_setup.lua` sets `pin_plugins = nil`, which means "pin plugins because a
 `version` is being tracked". So plugin versions come from AstroNvim's
@@ -80,13 +81,16 @@ changed, so continue to step 3.
 
 ### 3. Rebuild every parser
 
-```powershell
-.\scripts\build-ts-parser.ps1 -All
+```vim
+:TSUpdate
 ```
 
-This reads the new pinned revision for each installed language straight out of
-nvim-treesitter's own `parsers.lua`, rebuilds it with zig, and reinstalls it together with
-the matching queries. It takes a few minutes for ~10 languages.
+This rebuilds every installed parser at the revision the new nvim-treesitter pins and
+reinstalls the matching queries. Budget roughly half a minute per language; 16 languages
+took about seven minutes.
+
+If `:TSUpdate` ever fails, [`scripts/build-ts-parser.ps1 -All`](../scripts/build-ts-parser.ps1)
+does the same job without going through the tree-sitter CLI at all, and is kept as a fallback.
 
 **Why this is mandatory:** parsers and queries are a matched pair. nvim-treesitter ships
 queries written against specific grammar revisions. When the plugin updates, the queries
@@ -102,66 +106,87 @@ references a node type or field the old parser never had fails to compile at run
 Every installed language should show ✓ in the H/L/F/I/J columns. Then open a Lua and a
 Markdown file and confirm highlighting looks right.
 
-> ⚠️ `:checkhealth nvim-treesitter` reports **OK** on this machine even though there is no
-> C compiler. It only checks for the tree-sitter CLI, `tar` and `curl`, which are all
-> present. A green healthcheck does **not** mean `:TSInstall` will work.
+> ⚠️ `:checkhealth nvim-treesitter` does not check for a C compiler at all — only for the
+> tree-sitter CLI, `tar` and `curl`. It reported **OK** even back when no parser could be
+> built, so treat a green healthcheck as necessary but not sufficient.
 
 ---
 
 ## Treesitter parsers
 
-### Why `:TSInstall` does not work
+### How parsers get compiled without MSVC
 
-nvim-treesitter `main` installs a parser by running `tree-sitter build`, which shells out
-to a C compiler. On Windows that means MSVC. This machine has none, so every install ends
-with:
+nvim-treesitter `main` installs a parser by running `tree-sitter build`, which compiles
+through Rust's `cc` crate. On Windows that crate targets MSVC and looks for `cl.exe`.
+This machine has no usable MSVC — Build Tools 18 is installed but the Windows SDK
+component is missing, so `C:\Program Files (x86)\Windows Kits\10` has no `Include`
+directory and `cl` cannot compile anything that includes a standard header. Without a
+workaround, every install ends with:
 
 ```
 Failed to execute the C compiler with the following command:
 "cl.exe" "-nologo" "-MD" "-O2" ...
 Error: program not found
-[nvim-treesitter]: Installed 0/9 languages
 ```
 
-Zig cannot be dropped in as `CC` either. The tree-sitter CLI is an MSVC-target binary, so
-its build harness emits MSVC-style flags (`-nologo`, `/Fo`, `-link`) that zig's
-clang-based driver rejects. Setting `CC="zig cc"` also fails outright, because the
-harness treats `CC` as a single executable and invokes `zig -O2 ...`, dropping the `cc`.
+**zig supplies the compiler instead.** It ships its own libc headers and a MinGW-w64
+toolchain, so it needs no Windows SDK. It cannot simply be assigned to `CC` though: the
+`cc` crate treats `CC` as a single executable, so `CC="zig cc"` runs `zig -O2 ...` and
+zig replies `unknown command: -O2`.
 
-### What the script does instead
+[`scripts/zig-cl.c`](../scripts/zig-cl.c) is a small shim that *is* a single executable.
+It rewrites the arguments and re-execs `zig cc`. Three things need translating:
 
-[`scripts/build-ts-parser.ps1`](../scripts/build-ts-parser.ps1) bypasses the CLI entirely:
+| Problem | Fix |
+| --- | --- |
+| Rust target triple `x86_64-pc-windows-msvc` | zig has no vendor field and no MSVC libs here, so it becomes `x86_64-windows-gnu` and zig uses its bundled MinGW-w64 |
+| Extended-length paths (`\\?\C:\...`) | clang cannot open that form; the prefix is stripped |
+| MSVC flag spellings (`-nologo`, `-LD`, `/Fo`, `-link`, `-out:`) | dropped or mapped to their GNU equivalents |
 
-1. Asks nvim-treesitter for each grammar's repository URL and **pinned revision**.
-2. Shallow-clones the grammar at exactly that revision.
-3. Compiles `src/parser.c` (plus `scanner.c`/`scanner.cc` when present) with
-   `zig cc` / `zig c++` into `site/parser/<lang>.so`.
-4. Copies `runtime/queries/<lang>` from the nvim-treesitter checkout into
-   `site/queries/<lang>`, so parser and queries always come from the same revision.
+The shim **passes unknown arguments through untouched**. That matters: once `CC` is set,
+the `cc` crate switches to emitting GNU-style flags, so nearly everything is already
+correct. An earlier version dropped unrecognised flags instead and silently ate `-o` and
+`-shared`, which made zig treat the output path as an input file.
 
-Because the revision comes from nvim-treesitter itself, the result is equivalent to what
-`:TSInstall` would have produced.
+`lua/plugins/treesitter-zig-cc.lua` wires it up: it locates zig, builds the shim into
+`stdpath("data")/bin/zig-cl.exe` on first use, and sets `CC` and `ZIG_EXE`. Nothing needs
+to be on `PATH` and no environment variables need setting by hand.
 
 ### Adding a language
 
-```powershell
-.\scripts\build-ts-parser.ps1 rust yaml typescript
+```vim
+:TSInstall rust yaml typescript
 ```
 
-Then confirm with `:checkhealth nvim-treesitter`. If a grammar has no pre-generated
-`src/parser.c` in its repository the script reports it as failed — those grammars need
-`tree-sitter generate`, which is out of scope here.
+That is all. AstroNvim's install-on-demand also works, so opening a file of a new type
+installs its parser automatically.
 
-### Windows-specific gotchas the script handles
+### The fallback script
 
-`zig cc` emits linker byproducts next to the output that both break things:
+[`scripts/build-ts-parser.ps1`](../scripts/build-ts-parser.ps1) predates the shim and
+bypasses the tree-sitter CLI entirely — it clones each grammar at the revision
+nvim-treesitter pins and compiles it with zig directly. It is kept because it is a
+completely independent path to the same result:
+
+```powershell
+.\scripts\build-ts-parser.ps1 rust yaml     # specific languages
+.\scripts\build-ts-parser.ps1 -All          # rebuild everything installed
+```
+
+Use it if `:TSUpdate` ever breaks. If a grammar ships no pre-generated `src/parser.c` the
+script reports it as failed — those need `tree-sitter generate` first.
+
+### Windows-specific gotchas
+
+`zig cc` emits linker byproducts next to its output, and both break things:
 
 - **`<lang>.pdb`** — Neovim globs `parser/<lang>.*` and will try to `dlopen` the `.pdb`
   first, failing with `uv_dlopen: ... is not a valid Win32 application`.
 - **`parser.lib`** — nvim-treesitter lists every basename in `site/parser` as an installed
   language, so this shows up as a phantom language called `parser`.
 
-The script deletes both after each build. If you ever build a parser by hand, do the same.
+`:TSInstall` does not hit these, because the CLI writes only the parser. The build script
+deletes them after each build. If you ever compile a parser by hand, do the same.
 
 ---
 
@@ -207,8 +232,10 @@ Expect `broken query files: 0`.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| `Query error ... Invalid field name "x"` | Parser and queries are from different nvim-treesitter revisions | `.\scripts\build-ts-parser.ps1 -All` |
-| `Failed to execute the C compiler ... cl.exe ... program not found` | Something called `:TSInstall`/`:TSUpdate` | Use the build script; these commands cannot work here |
+| `Query error ... Invalid field name "x"` | Parser and queries are from different nvim-treesitter revisions | `:TSUpdate` |
+| `Failed to execute the C compiler ... cl.exe ... program not found` | `CC` is not pointing at the zig shim | Check `:lua =vim.env.CC`; it should be `…/nvim-data/bin/zig-cl.exe`. Delete that file to force a rebuild |
+| `unknown command: -O2` from zig | `CC` was set to `"zig cc"` directly instead of the shim | Use the shim; the `cc` crate cannot take a multi-word `CC` |
+| `unable to parse target query 'x86_64-pc-windows-msvc'` | Shim is missing or out of date; it maps Rust triples to zig ones | Rebuild it: delete `nvim-data/bin/zig-cl.exe` and restart |
 | `uv_dlopen: ...pdb is not a valid Win32 application` | A `.pdb` left in `site/parser` | Delete `site\parser\*.pdb` |
 | A language named `parser` appears as installed | A `.lib` left in `site/parser` | Delete `site\parser\*.lib` |
 | `attempt to call method 'type'/'range' (a nil value)` in a treesitter path | A plugin using the pre-0.12 query API — i.e. something is pinned to an old version again | Check what `lazy-lock.json` moved to; see the background section |
