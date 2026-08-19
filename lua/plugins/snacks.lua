@@ -94,6 +94,13 @@ return {
     scroll = { enabled = true },
     statuscolumn = { enabled = true },
     words = { enabled = true },
+    -- keybinds for these already existed below (<leader>z, <leader>Z, <leader>uD)
+    -- but the modules were never configured, so they only ever ran on defaults
+    zen = {
+      enabled = true,
+      toggles = { dim = true, git_signs = false, diagnostics = false },
+    },
+    dim = { enabled = true },
     styles = {
       notification = {
         -- wo = { wrap = true } -- Wrap notifications

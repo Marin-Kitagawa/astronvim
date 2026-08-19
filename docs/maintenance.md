@@ -11,6 +11,7 @@ when things move. Written 2026-08-14.
 - [Troubleshooting](#troubleshooting)
 - [Background: why any of this is necessary](#background-why-any-of-this-is-necessary)
 - [What is customised in this repo](#what-is-customised-in-this-repo)
+- [Added plugins and their keymaps](#added-plugins-and-their-keymaps)
 
 ---
 
@@ -172,7 +173,10 @@ Headless checks, useful after any change.
 
 ```powershell
 $lua = @'
-local langs = require("nvim-treesitter.config").get_installed()
+-- "parsers" matters: a bare get_installed() also returns query-only entries such as
+-- `ecma` and `jsx`, which are shared query fragments that javascript/typescript
+-- inherit from. They have no parser by design, so checking them always "fails".
+local langs = require("nvim-treesitter.config").get_installed("parsers")
 table.sort(langs)
 local bad = 0
 for _, lang in ipairs(langs) do
@@ -276,3 +280,55 @@ failed with `Invalid field name "operator"`, because 2025-09-07 parsers are too 
 Files disabled this way (`astrocore`, `astrolsp`, `astroui`, `mason`, `none-ls`,
 `treesitter`, `user`) are inert. That is why the v6 upgrade was low-risk: almost none of
 AstroNvim's core configuration is actually overridden here.
+
+---
+
+## Added plugins and their keymaps
+
+Added 2026-08-19. Everything here is pure Lua, so none of it is affected by the
+missing C compiler described above.
+
+### Appearance
+
+| Plugin | Notes |
+| --- | --- |
+| `catppuccin/nvim` | Default colorscheme, Mocha flavour. Set via `astroui.colorscheme` in `lua/plugins/colorschemes.lua`. Integrations are opted in explicitly for snacks, noice, neo-tree, blink, gitsigns, aerial, which-key, markview and mini |
+| `tokyonight` / `rose-pine` / `kanagawa` / `everforest` | Installed but `lazy = true`, so they cost nothing until selected. Switch live with `<Leader>uC` |
+| `mini.animate` | Animated window open/close/resize and cursor movement. Its `scroll` animation is **disabled on purpose** — `snacks.scroll` already animates scrolling and running both double-animates it |
+| `snacks.zen` / `snacks.dim` | Keymaps for these already existed (`<Leader>z`, `<Leader>Z`, `<Leader>uD`) but the modules were never configured, so they only ran on defaults |
+
+### Workflow
+
+| Keys | Plugin | Does |
+| --- | --- | --- |
+| `s` / `S` | flash.nvim | Jump to any visible position in ~2 keystrokes; `S` selects a treesitter node |
+| `gsa` / `gsd` / `gsr` | mini.surround | Add / delete / replace surrounding quotes, brackets, tags |
+| `vif` `cic` `dao` | mini.ai | Text objects for function, class, block/loop/conditional |
+| `<Leader>rr` | grug-far.nvim | Project-wide search **and replace** with live preview |
+| `<Leader>rw` | grug-far.nvim | Same, prefilled with the word under the cursor |
+| `<Leader>rf` | grug-far.nvim | Same, scoped to the current file |
+| `<Leader>ma` | grapple.nvim | Tag / untag the current file |
+| `<Leader>mm` | grapple.nvim | Open the tag list |
+| `<Leader>1`–`<Leader>4` | grapple.nvim | Jump straight to tag 1-4 |
+| `<Leader>ip` | img-clip.nvim | Paste an image from the clipboard into the document |
+| `<Leader>U` | undotree | Browse undo history as a tree |
+
+### Two things worth knowing
+
+**`s` and `gs`.** flash.nvim takes `s`, which is normally Vim's synonym for `cl`.
+mini.surround is therefore moved off its default `s` prefix onto `gs`. If you ever
+drop flash, move surround back.
+
+**mini.icons must be set up.** `mini.nvim` bundles a copy of every mini module,
+including `mini.icons`, which AstroNvim also installs standalone as
+`nvim-mini/mini.icons`. Both provide the `mini.icons` Lua module and either copy can
+win on the runtimepath. Whichever wins still has to have `setup()` called, or its
+highlight groups (`MiniIconsAzure` and friends) never get created and heirline throws
+`Invalid highlight name` every time it draws the statusline. `lua/plugins/mini.lua`
+guards this with `if not _G.MiniIcons then require("mini.icons").setup() end`.
+
+### Full inventory
+
+`C:\Users\Ahri\neovim-plugin-inventory.md` lists every plugin on awesome-neovim
+(AI section excluded) marked with whether it is installed here. It lives outside this
+repo because it describes the machine, not the config.
