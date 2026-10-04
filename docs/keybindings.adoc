@@ -1,0 +1,949 @@
+= Keybindings
+
+Complete keybinding reference for this configuration, generated from the live mapping table
+(`nvim_get_keymap`) and curated by section. Last verified 2026-10-04.
+
+toc::[]
+
+== Notation
+
+[cols="2,3"]
+|===
+|Notation |Meaning
+
+|`<Space>`
+|The leader key. Press `Space` and wait → which-key popup shows the menu tree live.
+
+|`,`
+|The *local* leader (used by plugins that opt into it; not bound globally).
+
+|`<C-x>`
+|Ctrl + x. `<M-x>` = Alt + x, `<S-x>` = Shift + x.
+
+|n / x / o / i / c / t
+|Modes: normal, visual+select, operator-pending, insert, cmdline, terminal.
+
+|_(needs LSP)_
+|Mapping only exists once a language server is attached to the buffer.
+|===
+
+== General
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`<C-s>`
+|n, x
+|Force write
+
+|`<Space>w`
+|n
+|Save
+
+|`<Space>q` / `<C-q>`
+|n
+|Quit window / force quit
+
+|`<Space>Q`
+|n
+|Exit Neovim
+
+|`<Space>c` / `<Space>C`
+|n
+|Close buffer / force close buffer
+
+|`j` `k`
+|n, x
+|Move down/up (respecting display lines: `gj`/`gk` when wrapped)
+
+|`jk`
+|i
+|Escape (better-escape: no timeout delay)
+
+|`|` / `\`
+|n
+|Vertical / horizontal split
+
+|`<C-h>` `<C-j>` `<C-k>` `<C-l>`
+|n
+|Move between splits
+
+|`<C-Arrows>`
+|n
+|Resize split (Up/Down/Left/Right)
+
+|`<Space>u>` 
+|n
+|Toggle foldcolumn
+|===
+
+== Flash — jumping around
+
+`s` is deliberately *not* remapped in visual mode: there it keeps its native meaning
+(delete selection, enter insert — same as `c`).
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`s`
+|n, o
+|Flash jump — type two chars, then the label. In operator mode: `ds`, `ys`, `cs` style combos
+work, e.g. `c` + `s` + chars to change through a jump.
+
+|`S`
+|n, o
+|Flash treesitter select — pick a syntax node
+
+|`S`
+|x
+|Flash jump in visual mode (the visual-mode remap; native `s` delete is preserved)
+
+|`gS`
+|n, o, x
+|Flash treesitter select (works in visual too)
+
+|`r`
+|o
+|Remote flash — operate from where the jump lands
+
+|`R`
+|o, x
+|Flash treesitter search
+
+|`f` `t` `F` `T`
+|n, o
+|Enhanced char motions — jump past the current line, labels appear on multiple matches
+
+|`<C-s>`
+|c
+|Toggle flash labels while searching with `/`
+|===
+
+[NOTE]
+====
+`/` and `?` are plain search (flash's search mode is disabled); nvim-hlslens annotates them with
+"match N of M" lenses and highlights all visible matches — see xref:#_searching[Searching].
+====
+
+== Completion (blink.cmp)
+
+blink.cmp owns `<Tab>` in insert and cmdline mode. Copilot never touches it.
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`<C-space>`
+|i
+|Show / toggle completion menu
+
+|`<Tab>` / `<S-Tab>`
+|i, c
+|Select next / previous item; jump between snippet placeholders; show menu
+
+|`<C-n>` / `<C-p>` / `<C-j>` / `<C-k>`
+|i
+|Next / previous item
+
+|`<CR>`
+|i
+|Accept selection
+
+|`<C-e>`
+|i
+|Hide menu
+
+|`<C-u>` / `<C-d>`
+|i
+|Scroll documentation up / down
+
+|`,`
+|n, x
+|Toggle `,` at end of line (normal: current line, visual: every selected line)
+
+|`<C-;>`
+|n, x
+|Toggle `;` at end of line
+|===
+
+[NOTE]
+====
+These last two are the "chartoggle" mappings, reimplemented inline in `blink_cmp.lua` because
+blink.cmp removed its `blink.chartoggle` module.
+====
+
+== Copilot
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`<M-CR>`
+|i
+|Accept Copilot suggestion
+
+|`<M-]>` / `<M-[>`
+|i
+|Next / previous suggestion
+
+|`<M-\>`
+|i
+|Accept suggestion one line at a time
+|===
+
+== Files, buffers and windows
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`<Space><Space>`
+|n
+|Smart find files (snacks picker)
+
+|`<Space>ff` / `<Space>fF`
+|n
+|Find files (cwd) / all files
+
+|`<Space>fg`
+|n
+|Find git files
+
+|`<Space>fr` / `<Space>fO` / `<Space>fo`
+|n
+|Recent files / old files in cwd / old files
+
+|`<Space>fb` / `<Space>,`
+|n
+|Buffers
+
+|`<Space>fc` / `<Space>fa`
+|n
+|Find config file / AstroNvim config files
+
+|`<Space>fp`
+|n
+|Projects
+
+|`<Space>f<CR>`
+|n
+|Resume previous search
+
+|`<Space>-`
+|n, x
+|Open yazi at the current file
+
+|`<Space>cw`
+|n
+|Open yazi in the working directory
+
+|`<C-Up>`
+|n
+|Resume last yazi session
+
+|`<Space>e`
+|n
+|Snacks file explorer
+
+|`<Space>o`
+|n
+|Toggle explorer focus
+
+|`]b` / `[b`
+|n
+|Next / previous buffer
+
+|`]b`/`[b` with a count (`3]b`)
+|n
+|Jump N buffers
+
+|`<Space>bb` / `<Space>bp`
+|n
+|Pick buffer from tabline / previous buffer
+
+|`<Space>bd`
+|n
+|Delete buffer (keeps window layout)
+
+|`<Space>bc` / `<Space>bC`
+|n
+|Close all buffers except current / close all
+
+|`<Space>bl` / `<Space>br`
+|n
+|Close all buffers to the left / right
+
+|`<Space>bs…` (`e`, `r`, `p`, `i`, `m`)
+|n
+|Sort buffers by extension / relative path / full path / number / modified
+
+|`>b` / `<b`
+|n
+|Move buffer tab right / left
+
+|`]t` / `[t`
+|n
+|Next / previous tab
+
+|`gx`
+|n, x
+|Open file/URL under cursor with the system handler
+|===
+
+== Searching
+
+=== Pickers
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`<Space>/` or `<Space>sg`
+|n
+|Grep (live ripgrep via snacks)
+
+|`<Space>sw`
+|n, x
+|Grep word under cursor / visual selection
+
+|`<Space>fw` / `<Space>fW`
+|n
+|Find words (grep) / words in all files (hidden incl.)
+
+|`<Space>sB`
+|n
+|Grep open buffers
+
+|`<Space>fl`
+|n
+|Find lines in buffer
+
+|`<Space>sb`
+|n
+|Buffer lines (same engine)
+
+|`<Space>s"` 
+|n
+|Registers
+
+|`<Space>s/`
+|n
+|Search history
+
+|`<Space>sc` / `<Space>:`
+|n
+|Command history
+
+|`<Space>sC` / `<Space>fC`
+|n
+|Commands
+
+|`<Space>sa` / `<Space>sk` / `<Space>sh` / `<Space>sH`
+|n
+|Autocmds / keymaps / help pages / highlights
+
+|`<Space>si` / `<Space>sm` / `<Space>f'` / `<Space>sj`
+|n
+|Icons / marks / marks / jumps
+
+|`<Space>sM` / `<Space>fm`
+|n
+|Man pages
+
+|`<Space>sd` / `<Space>sD` / `<Space>lD`
+|n
+|Diagnostics / buffer diagnostics / search diagnostics
+
+|`<Space>sl` / `<Space>sq` / `<Space>xl` / `<Space>xq`
+|n
+|Location list / quickfix list
+
+|`<Space>sp` / `<Space>su` / `<Space>ft` / `<Space>fn`
+|n
+|Plugin spec / undo history / themes / notifications
+
+|`<Space>sR` / `<Space>f<CR>`
+|n
+|Resume last picker
+
+|`<Space>fT`
+|n
+|Find TODO comments
+|===
+
+=== In-buffer search (nvim-hlslens)
+
+|===
+|Keys |Mode |Action
+
+|`n` / `N`
+|n
+|Next / previous match, with lens ("match 3 of 12") and visible-match highlighting
+
+|`*` / `#`
+|n
+|Search word under cursor (forward / backward), with lens
+
+|`g*` / `g#`
+|n
+|Search substring under cursor, with lens
+|===
+
+== Search & replace (grug-far)
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`<Space>rr`
+|n
+|Search / replace across the project (live results buffer)
+
+|`<Space>rf`
+|n
+|Search / replace in the current file
+
+|`<Space>rw`
+|n
+|Pre-filled with word under cursor
+
+|`<Space>r`
+|x
+|Search / replace the visual selection
+|===
+
+== Git
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`<Space>gg`
+|n
+|Lazygit (full terminal UI)
+
+|`<Space>gs` / `<Space>gS`
+|n
+|Git status picker / git stash picker
+
+|`<Space>gb`
+|n
+|Branches
+
+|`<Space>gl` / `<Space>gL` / `<Space>gf` / `<Space>gC` / `<Space>gc`
+|n
+|Git log / log of line under cursor / log of current file / commits (current file) / commits (repo)
+
+|`<Space>gd`
+|n
+|Quick hunks diff (snacks picker)
+
+|`<Space>gD`
+|n
+|**Diffview** — full working-tree diff view
+
+|`<Space>gF`
+|n
+|**Diffview** — history of the current file
+
+|`<Space>gH`
+|n
+|**Diffview** — history of the whole repo
+
+|`<Space>gB`
+|n, x
+|Open repo/line on GitHub in browser
+
+|`<Space>go`
+|n, x
+|Git browse (open)
+|===
+
+== LSP
+
+All `<Space>l…` and `g…` LSP keys appear once a server attaches (mason installs servers on
+demand — `<Space>pm`).
+
+[cols="3,2,4"]
+|===
+|Keys |Mode |Action
+
+|`gd` / `gD` / `gI` / `gy`
+|n
+|Definition / declaration / implementation / type definition
+
+|`gO`
+|n
+|Document symbols
+
+|`gr`
+|n
+|References (snacks picker)
+
+|`gl` / `<C-w>d`
+|n
+|Hover diagnostics float
+
+|`gK` / `<Space>lh`
+|n
+|Signature help
+
+|`<Space>la` / `<Space>lA`
+|n, x
+|Code action / source action
+
+|`<Space>lr`
+|n
+|Rename symbol
+
+|`<Space>lR`
+|n
+|Search references
+
+|`<Space>ld` / `<Space>li`
+|n
+|Hover diagnostics / LSP info
+
+|`<Space>ls` / `<Space>lS` / `<Space>lG`
+|n
+|Search symbols / symbols outline (aerial) / workspace symbols
+
+|`<Space>lf`
+|n, x
+|Format buffer / range (conform)
+
+|`<Space>ll` / `<Space>lL`
+|n
+|Enable codelens / run codelens
+
+|`<Space>lD`
+|n
+|Search diagnostics
+|===
+
+[NOTE]
+====
+Neovim 0.12 binds its own `gra` (code action), `grn` (rename), `grr`/`gri`/`grt`/`grx`. Because
+`gr` is bound to the references picker with `nowait`, those longer defaults are shadowed — use
+`<Leader>la`, `<Leader>lr`, `gI`, `gy` instead. They still exist if `gr` is ever unbound.
+====
+
+== Text objects and surround (mini.nvim)
+
+=== mini.ai — `a` (around) and `i` (inside)
+
+|===
+|Keys |Mode |Action
+
+|`a…` / `i…`
+|o, x
+|Standard objects: quotes, parens, brackets, braces, tags, argument, sentence, paragraph…
+
+|`af` / `if`
+|o, x
+|Around / inside *function* (treesitter)
+
+|`ac` / `ic`
+|o, x
+|Around / inside *class*
+
+|`ao` / `io`
+|o, x
+|Around / inside *block, loop or conditional*
+
+|`an…` / `al…` / `in…` / `il…`
+|o, x
+|Next / last variant of any object, e.g. `van(` selects the next parenthesis
+|===
+
+=== mini.surround — the `gs` prefix
+
+|===
+|Keys |Mode |Action
+
+|`gsa`
+|n, x
+|Add surrounding (visual: surround selection)
+
+|`gsr`
+|n
+|Replace surrounding
+
+|`gsd`
+|n
+|Delete surrounding
+
+|`gsf` / `gsF`
+|n
+|Find surrounding (right / left first)
+
+|`gsh`
+|n
+|Highlight surrounding
+
+|`gsn`
+|n
+|Update `n_lines` for search
+
+|suffix `l` / `n`
+|n
+|Previous / next surrounding, e.g. `gsdl` deletes the previous one
+|===
+
+=== Neovim 0.12 treesitter motions
+
+|===
+|Keys |Mode |Action
+
+|`]n` / `[n`
+|x
+|Select next / previous treesitter node
+
+|`]N` / `[N`
+|x
+|Select next / previous sibling node
+
+|`g]` / `g[`
+|n, o
+|Move to the treesitter node "around" the cursor (right / left)
+
+|`]f` / `[f`… 
+|n
+|Treesitter-based structural jumps where a parser is attached
+|===
+
+== Comments
+
+|===
+|Keys |Mode |Action
+
+|`gcc`
+|n
+|Toggle comment on line
+
+|`gc` + motion / `<Space>/`
+|n, x
+|Toggle comment (motion or selection)
+
+|`gco` / `gcO`
+|n
+|Add comment below / above current line
+|===
+
+== Diagnostics and lists
+
+|===
+|Keys |Mode |Action
+
+|`]d` / `[d`
+|n
+|Next / previous diagnostic
+
+|`]D` / `[D`
+|n
+|First / last diagnostic in buffer
+
+|`]e` / `[e` and `]w` / `[w`
+|n
+|Next/previous *error* / *warning*
+
+|`]q` / `[q` / `]Q` / `[Q` / `]a` / `[a`
+|n
+|Quickfix / location list / arglist navigation
+
+|`]r` / `[r` and `M-n` / `M-p`
+|n
+|Next / previous reference (illuminate-backed)
+
+|`]]` / `[[`
+|n, t
+|Jump to next / previous reference of the symbol under cursor (snacks words)
+
+|`]T` / `[T`
+|n
+|Next / previous TODO comment
+
+|`<Space>xq` / `<Space>xl`
+|n
+|Open quickfix / location list (quicker.nvim: editable, treesitter-highlighted)
+|===
+
+== Debug adapter (DAP)
+
+|===
+|Keys |Mode |Action
+
+|`<Space>db` / `F9`
+|n
+|Toggle breakpoint
+
+|`<Space>dC` / `S-F9`
+|n
+|Conditional breakpoint
+
+|`<Space>dc` / `F5`
+|n
+|Start / continue
+
+|`<Space>di` / `F11`
+|n
+|Step into
+
+|`<Space>do` / `F10`
+|n
+|Step over
+
+|`<Space>dO` / `S-F11`
+|n
+|Step out
+
+|`<Space>dp` / `F6`
+|n
+|Pause
+
+|`<Space>dr` / `<C-F5>` / `<Space>dQ` / `S-F5`
+|n
+|Restart / terminate session
+
+|`<Space>dq`
+|n
+|Close session
+
+|`<Space>ds` / `<Space>dE`
+|n
+|Run to cursor / evaluate expression
+
+|`<Space>dh`
+|n
+|Hover value
+
+|`<Space>dR`
+|n
+|Toggle REPL
+
+|`<Space>du`
+|n
+|Toggle debugger UI
+
+|`<Space>dB`
+|n
+|Clear all breakpoints
+|===
+
+== Terminal
+
+|===
+|Keys |Mode |Action
+
+|`<C-/>` or `<C-_>`
+|n
+|Toggle terminal (below current window)
+
+|`<C-'>` / `F7`
+|n, i, t
+|Toggle floating terminal
+
+|`<Space>tf` / `<Space>tv` / `<Space>th`
+|n
+|Floating / vertical / horizontal terminal
+
+|`<C-h/j/k/l>`
+|t
+|Move between splits from terminal mode
+
+|`<Esc><Esc>` (in terminal buffer)
+|t
+|Back to normal mode (toggleterm default)
+|===
+
+== UI toggles — `<Space>u…`
+
+|===
+|Keys |Action
+
+|`<Space>ua` |Toggle autopairs
+|`<Space>ub` |Toggle dark/light background
+|`<Space>uc` |Toggle conceallevel
+|`<Space>uC` |Pick colorscheme (catppuccin, tokyonight, rose-pine, kanagawa, everforest…)
+|`<Space>ud` |Toggle diagnostics
+|`<Space>uD` |Toggle dimming (snacks dim)
+|`<Space>uG` |Toggle signcolumn *(snacks' indent toggle lives on `ug`)*
+|`<Space>ug` |Toggle indent guides (snacks.indent)
+|`<Space>uh` |Toggle inlay hints
+|`<Space>ui` |Change indent setting (guess-indent)
+|`<Space>ul` |Toggle statusline
+|`<Space>uL` |Toggle relative numbers
+|`<Space>un` |Toggle line numbering
+|`<Space>uN` |Toggle notifications
+|`<Space>up` |Toggle paste mode
+|`<Space>ur` |Toggle reference highlighting (illuminate)
+|`<Space>us` |Toggle spelling
+|`<Space>uS` |Toggle conceal
+|`<Space>ut` |Toggle tabline
+|`<Space>uT` |Toggle treesitter highlight
+|`<Space>uu` |Toggle URL highlight
+|`<Space>uV` |Toggle virtual lines (diagnostics)
+|`<Space>uv` |Toggle virtual text (diagnostics)
+|`<Space>uw` |Toggle wrap
+|`<Space>uy` |Toggle buffer syntax highlight
+|`<Space>uz` |Toggle color highlights (nvim-highlight-colors)
+|`<Space>uZ` |Toggle zen mode
+|`<Space>u|` |Toggle indent guides (alternate binding)
+|===
+
+== Sessions
+
+|===
+|Keys |Action
+
+|`<Space>Ss` |Save this session
+|`<Space>Sf` / `<Space>Sl` |Load a session / load last session
+|`<Space>Sd` |Delete a session
+|`<Space>SS` / `<Space>S.` |Save / load this *directory* session (dirsession)
+|`<Space>SF` / `<Space>SD` |Load / delete a dirsession
+|`<Space>St` |Save this tab's session
+|===
+
+== Window management extras
+
+|===
+|Keys |Mode |Action
+
+|`<Space>b\` / `<Space>b|`
+|n
+|Horizontal / vertical split of buffer from tabline
+
+|`<Space>z`
+|n
+|Zen mode (snacks: dims UI and distractors)
+
+|`<Space>Z`
+|n
+|Zoom current window
+
+|`<Space>.` / `<Space>S`
+|n
+|Toggle / select scratch buffer
+
+|`<Space>h`
+|n
+|Home screen (snacks dashboard)
+|===
+
+== Tools
+
+=== grapple — file tagging
+
+|===
+|Keys |Action
+
+|`<Space>ma` |Tag / untag current file
+|`<Space>mm` |Open tag list
+|`<Space>mn` / `<Space>mp` |Next / previous tag
+|`<Space>1` … `<Space>4` |Jump to tag 1–4
+|===
+
+Tags are scoped per git branch and persist across sessions.
+
+=== Utilities
+
+|===
+|Keys |Mode |Action
+
+|`<Space>U`
+|n
+|Undo tree (mbbill/undotree)
+
+|`<Space>y`
+|n
+|Clipboard/yank history (neoclip via telescope)
+
+|`<Space>?`
+|n
+|Cheat sheets (cheatsheet.nvim)
+
+|`<Space>ip`
+|n
+|Paste clipboard image into the buffer (img-clip, markdown `assets/`)
+
+|`:MarkdownPreviewToggle`
+|command
+|Browser markdown preview
+
+|`:TSContextToggle`
+|command
+|Sticky treesitter context header on/off
+|===
+
+=== Plugin management
+
+|===
+|Keys |Action
+
+|`<Space>ps` |Lazy status window
+|`<Space>pi` / `<Space>pu` / `<Space>pU` / `<Space>pS` |Install / check updates / update / sync
+|`<Space>pa` |Update lazy.nvim and mason together
+|`<Space>pm` / `<Space>pM` |Mason installer / Mason update
+|===
+
+== Visual mode reference
+
+|===
+|Keys |Action
+
+|`s` |*Native* — delete selection, enter insert (flash is NOT bound here)
+|`S` |Flash jump
+|`gS` |Flash treesitter select
+|`R` |Flash treesitter search
+|`C` |Change selection (delete + insert) — same as what native `s` does
+|`<Tab>` / `<S-Tab>` |Indent / unindent, keep selection
+|`<Space>/` |Toggle comment on selection
+|`<Space>r` |Search / replace selection (grug-far)
+|`<Space>sw` |Grep selection
+|`<Space>la` |Code action on selection
+|`<Space>gB` / `<Space>go` |Git browse
+|`,`, `<C-;>` |Toggle `,` / `;` at end of every selected line
+|`<C-s>` |Force write
+|`gsa` |Surround selection (mini.surround)
+|===
+
+== Insert mode reference
+
+|===
+|Keys |Action
+
+|`jk` |Escape (better-escape)
+|`<Tab>` / `<S-Tab>` |blink.cmp: select item / jump snippet placeholder
+|`<C-space>` |Show completion
+|`<CR>` |Accept completion
+|`<M-CR>` |Accept Copilot suggestion
+|`<M-]>` / `<M-[>` |Copilot next / previous
+|`<M-\>` |Copilot accept line
+|===
+
+== Cmdline
+
+|===
+|Keys |Action
+
+|`/` or `?` then text |Buffer-completion inside search (blink cmdline source)
+|`:`, `@` |Cmdline + path completion menu (blink), rendered by noice's cmdline popup
+|`<C-s>` |Toggle flash labels while searching
+|`<Tab>` / `<S-Tab>` |Select completion entry
+|===
+
+== Where to change these
+
+Every binding above comes from one of:
+
+* `lua/plugins/snacks.lua` — pickers, explorer, toggles, zen/zoom, terminal
+* `lua/plugins/flash.lua` — jump keys
+* `lua/plugins/blink_cmp.lua` — chartoggle
+* `lua/plugins/copilot.lua` — `<M-CR>` accept
+* `lua/plugins/{grapple,grug-far,undotree,neoclip,img-clip}.lua` — tool keys, declared in an
+  `AstroNvim/astrocore` `specs` block inside each file
+* `lua/plugins/extras.lua` — diffview keys, hlslens search keys
+* AstroNvim base (`%LOCALAPPDATA%\nvim-data\lazy\AstroNvim\lua\astronvim\plugins\`) —
+  everything else; override in the `astrocore` specs pattern shown in the files above.

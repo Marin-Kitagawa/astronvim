@@ -342,9 +342,12 @@ missing C compiler described above.
 
 ### Two things worth knowing
 
-**`s` and `gs`.** flash.nvim takes `s`, which is normally Vim's synonym for `cl`.
-mini.surround is therefore moved off its default `s` prefix onto `gs`. If you ever
-drop flash, move surround back.
+**`s`, `S` and `gs`.** flash.nvim takes `s` in normal and operator-pending mode, which is
+normally Vim's synonym for `cl`. mini.surround is therefore moved off its default `s` prefix
+onto `gs`. In *visual* mode `s` stays native (delete selection + insert); visual flash jump
+lives on `S` and visual treesitter select on `gS`. If you ever drop flash, move surround back
+to `s`. The full, current keymap reference is **[`docs/keybindings.adoc`](keybindings.adoc)**
+(2026-10-04).
 
 **mini.icons must be set up.** `mini.nvim` bundles a copy of every mini module,
 including `mini.icons`, which AstroNvim also installs standalone as

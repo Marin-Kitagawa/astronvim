@@ -1,0 +1,270 @@
+= Neovim Configuration
+
+An AstroNvim v6 based configuration for Windows, tuned for this machine: snacks.nvim as the
+picker/UI backbone, blink.cmp for completion, flash.nvim for jumping, and treesitter parsers
+compiled with zig because there is no MSVC here.
+
+toc::[]
+
+== The stack, in one table
+
+|===
+|Layer |What is used |Why
+
+|Distribution
+|AstroNvim v6 (`version = "^6"`)
+|Base framework: astrocore/astrolsp/astroui, mason, LSP setup, heirline statusline.
+
+|Completion
+|blink.cmp v1.0
+|Insert + cmdline completion, snippet navigation. Owns `<Tab>`.
+
+|Pickers & UI
+|snacks.nvim
+|File/grep/pickers, dashboard, explorer, notifications, zen, dim, indent guides, terminal, scratch buffers, lazygit.
+
+|Jumping
+|flash.nvim
+|`s` jump, labelled `f`/`t`, treesitter selection. See xref:keybindings.adoc#_flash[Keybindings → Flash].
+
+|Text objects
+|mini.nvim (surround, ai, animate)
+|`gs` surround prefix, treesitter-backed `a`/`i` text objects, cursor/resize animation.
+
+|Formatting
+|conform.nvim
+|stylua, goimports, ruff/black, `lsp_format = "fallback"`, format-on-save.
+
+|Search & replace
+|grug-far.nvim
+|Project-wide search/replace in a normal buffer. snacks greps, grug-far rewrites.
+
+|File manager
+|yazi.nvim + snacks explorer
+|`<Space>-` opens yazi at the current file; `<Space>e` is the snacks explorer.
+
+|Git
+|gitsigns, lazygit, diffview.nvim
+|Inline hunks, `<Space>gg` lazygit, `<Space>gD`/`gF`/`gH` diff & history views.
+
+|Completion extras
+|copilot.vim
+|Ghost text suggestions. Accept with `<M-CR>` — blink.cmp owns `<Tab>`.
+|===
+
+The full plugin inventory with file locations is in xref:#_plugin_map[Plugin map] below.
+
+== Requirements
+
+* **Windows** (developed and used on Windows 11; paths assume `%LOCALAPPDATA%`)
+* **Neovim 0.12+** — installed at `C:\Users\Ahri\Software\Neovim` on this machine
+* **zig** on `PATH` or at `C:\Users\Ahri\Software\Ziglang\zig.exe` — used to compile treesitter
+  parsers (see below)
+* **ripgrep** — snacks grep and grug-far
+* **yazi** — the `<Space>-` file manager
+* **Node.js** — copilot.vim
+* **PowerShell (pwsh)** — `init.lua` wires `:sh`, `:!` and toggleterm through pwsh with UTF-8
+
+== Layout
+
+[source]
+----
+~/%LOCALAPPDATA%/nvim/
+├── init.lua                  bootstrap + astrotheme + pwsh shell wiring
+├── lazy_setup.lua            lazy.nvim setup, imports, plugin pinning
+├── lazy-lock.json            pinned plugin revisions
+├── lua/
+│   ├── community.lua         astrocommunity imports (currently inactive)
+│   ├── polish.lua            custom filetypes (inactive template stub)
+│   └── plugins/              one file per concern, all lazy specs
+│       ├── astrocore.lua     core options/mappings (inactive stub)
+│       ├── blink_cmp.lua     completion + chartoggle `,` / `<C-;>`
+│       ├── colorschemes.lua  catppuccin (default) + tokyonight/rose-pine/kanagawa/everforest
+│       ├── copilot.lua       copilot.vim, <M-CR> accept
+│       ├── conform.lua       formatters per filetype
+│       ├── disabled.lua      alpha-nvim, nvim-ufo explicitly off
+│       ├── extras.lua        treesitter-context, illuminate, diffview, hlslens, lightbulb
+│       ├── flash.lua         jump engine
+│       ├── grapple.lua       file tagging <Space>m
+│       ├── grug-far.lua      search/replace <Space>r
+│       ├── markview.lua      in-buffer markdown rendering
+│       ├── mini.lua          surround / ai / animate
+│       ├── neoclip.lua       yank history, <Space>y
+│       ├── noice.lua         cmdline/messages/LSP UI
+│       ├── quicker.lua       quickfix improvements
+│       ├── snacks.lua        pickers, dashboard, explorer, toggles
+│       ├── treesitter-zig-cc.lua  zig compiler shim for :TSInstall
+│       ├── undotree.lua      <Space>U
+│       └── yazi.lua          file manager
+├── scripts/zig-cl.c          cl.exe-compatible shim, built on first parser install
+└── docs/
+    ├── maintenance.md        environment, post-update workflow, troubleshooting
+    └── keybindings.adoc      complete keybinding reference
+----
+
+== Keybindings
+
+Leader is `Space`, local leader is `,`. Press `Space` and wait for the which-key popup to
+browse everything live.
+
+The complete, curated reference lives in **xref:docs/keybindings.adoc[docs/keybindings.adoc]** —
+including the flash `s`/`S`/`gS` scheme, the blink chartoggle, all picker menus, LSP, DAP,
+text objects and UI toggles.
+
+== Plugin map
+
+Everything below is configured in this repo; "file" is under `lua/plugins/`.
+
+[cols="1,2,1"]
+|===
+|Plugin |Purpose |File
+
+|AstroNvim v6
+|Distribution core, statusline, neo-tree/toggleterm/DAP defaults
+|`lazy_setup.lua`
+
+|blink.cmp
+|Completion engine, cmdline completion
+|`blink_cmp.lua`
+
+|snacks.nvim
+|Pickers, dashboard, explorer, notifier, zen, dim, terminal, lazygit
+|`snacks.lua`
+
+|flash.nvim
+|Multi-cursor jump, labelled char motion, treesitter select
+|`flash.lua`
+
+|mini.nvim
+|surround (`gsa/gsr/gsd/gsf/gsh`), ai text objects, animations
+|`mini.lua`
+
+|noice.nvim
+|Cmdline popup, message routing, LSP hover/signature/progress UI
+|`noice.lua`
+
+|conform.nvim
+|Formatting (`<Leader>lf`), format on save
+|`conform.lua`
+
+|copilot.vim
+|AI completion; `<M-CR>` accepts, `<Tab>` left to blink
+|`copilot.lua`
+
+|grapple.nvim
+|Tag & jump between working files (`<Space>ma`, `<Space>1`-`4`)
+|`grapple.lua`
+
+|grug-far.nvim
+|Project-wide find & replace (`<Space>rr`)
+|`grug-far.lua`
+
+|yazi.nvim
+|yazi file manager integration (`<Space>-`)
+|`yazi.lua`
+
+|undotree
+|Undo history tree (`<Space>U`)
+|`undotree.lua`
+
+|neoclip
+|Persistent yank history (`<Space>y`)
+|`neoclip.lua`
+
+|cheatsheet.nvim
+|Cheat sheets (`<Space>?`)
+|`cheatsheet.lua`
+
+|img-clip.nvim
+|Paste clipboard images into markdown (`<Space>ip`)
+|`img-clip.lua`
+
+|markview.nvim
+|Render markdown inline in the buffer
+|`markview.lua`
+
+|markdown-preview.nvim
+|Browser preview (`:MarkdownPreviewToggle`)
+|`markdown-preview.lua`
+
+|asciidoc-nvim
+|AsciiDoc support (auto-loads on `*.adoc`)
+|`asciidoc.lua`
+
+|quicker.nvim
+|Better quickfix: edit in place, treesitter highlights
+|`quicker.lua`
+
+|nvim-treesitter-context
+|Sticky function/class header (`:TSContextToggle`)
+|`extras.lua`
+
+|vim-illuminate
+|Highlight occurrences of symbol under cursor (`<Space>ur` toggles)
+|`extras.lua`
+
+|diffview.nvim
+|Git diff/history UI (`<Space>gD`, `<Space>gF`, `<Space>gH`)
+|`extras.lua`
+
+|nvim-hlslens
+|Search lenses: "match 3 of 12" on n/N/*/#
+|`extras.lua`
+
+|nvim-lightbulb
+|Sign when a code action is available
+|`extras.lua`
+
+|vim-wakatime
+|WakaTime tracking
+|`wakatime.lua`
+
+|nvim-web-devicons
+|File icons (shared by grapple, telescope, …)
+|`devicons.lua`
+
+|colorschemes
+|catppuccin mocha (default), tokyonight, rose-pine, kanagawa, everforest
+|`colorschemes.lua`
+|===
+
+== Treesitter parsers without MSVC
+
+This machine has no usable MSVC (Build Tools exist but the Windows SDK component is missing),
+and nvim-treesitter `main` compiles parsers on demand expecting `cl.exe`. `treesitter-zig-cc.lua`
+builds a tiny shim (`scripts/zig-cl.c`) into `%LOCALAPPDATA%\nvim-data\bin\zig-cl.exe` on first
+use and points `CC` at it. Result: `:TSInstall` and `:TSUpdate` work normally.
+
+[IMPORTANT]
+====
+After `:Lazy update` moves `nvim-treesitter`, run `:TSUpdate` — otherwise highlighting breaks
+with `Query error ... Invalid field name`. Full post-update workflow:
+xref:docs/maintenance.md[docs/maintenance.md].
+====
+
+== Updating
+
+1. Run `:Lazy update` **twice** (first pass updates AstroNvim, second applies its snapshot).
+2. If `lazy-lock.json` shows `nvim-treesitter` moved, run `:TSUpdate`.
+3. New formatters/LSP servers arrive via Mason: `<Space>pm`, `<Space>pM`.
+
+== Installation (fresh machine)
+
+[source,shell]
+----
+git clone https://github.com/Marin-Kitagawa/astronvim.git "$env:LOCALAPPDATA\nvim"
+----
+
+Start `nvim`; lazy.nvim bootstraps itself, installs plugins from `lazy-lock.json`, and the
+treesitter shim compiles parsers on first open of a new filetype. Prerequisites from
+xref:#_requirements[Requirements] must be on `PATH` (or in `~\Software` for zig).
+
+== Verification
+
+Headless smoke test used by this repo's maintenance (see
+xref:docs/maintenance.md#_verifying_the_config[maintenance → Verifying the config]):
+
+[source,shell]
+----
+nvim --headless "+qa!"
+----
