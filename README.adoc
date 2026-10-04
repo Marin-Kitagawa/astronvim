@@ -41,7 +41,11 @@ toc::[]
 
 |File manager
 |yazi.nvim + snacks explorer
-|`<Space>-` opens yazi at the current file; `<Space>e` is the snacks explorer.
+|`<Space>-` opens yazi at the current file; `<Space>e` is the snacks explorer. Inside yazi,
+`F` = flash-style jump to an entry by first character (official `jump-to-char.yazi`, bound in
+`%APPDATA%\yazi\config\keymap.toml`). The yazi plugins (`git.yazi`, `jump-to-char.yazi`,
+`ouch.yazi`) are built by `yazi.lua` into the real config dir — `yazi.nvim`'s default
+`~/.config/yazi` is not read on Windows, and its symlink install needs Developer Mode.
 
 |Git
 |gitsigns, lazygit, diffview.nvim

@@ -367,7 +367,17 @@ repo because it describes the machine, not the config.
 
 | Plugin | Reason |
 | --- | --- |
-| `easyjump.yazi` | Hosted on **gitee** (`gitee.com/DreamMaoMao/easyjump.yazi`). No gitee account here and none will be created; the spec was removed in `9c3684a`. Do not re-add. |
+| `easyjump.yazi` | Hosted on **gitee** (`gitee.com/DreamMaoMao/easyjump.yazi`). No gitee account here and none will be created; the spec was removed in `9c3684a`. Replaced with the official GitHub-hosted **`jump-to-char.yazi`** (`yazi-rs/plugins`), bound to `F` inside yazi via `%APPDATA%\yazi\config\keymap.toml`. Do not re-add. |
 
 When curating new plugins, only pick ones hosted on forges that work without an account
 (GitHub, GitLab, sourcehut, sr.ht-style clones) — anything behind gitee or similar is out.
+
+### yazi plugin installs
+
+`lua/plugins/yazi.lua` builds yazi plugins (`git.yazi`, `jump-to-char.yazi`, `ouch.yazi`) into
+`%APPDATA%\yazi\config\plugins` with plain recursive copies. Two reasons it does not use
+yazi.nvim's `build_plugin` helper: the helper defaults to `~/.config/yazi`, which yazi on
+Windows never reads (the real config dir is `%APPDATA%\yazi\config`), and it installs via
+`fs_symlink`, which fails with `EPERM` without Windows Developer Mode. Found 2026-10-04 —
+before this, `git.yazi` and `ouch.yazi` were pinned in `lazy-lock.json` but never actually
+installed anywhere.

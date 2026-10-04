@@ -46,22 +46,58 @@ return {
       vim.g.loaded_netrwPlugin = 1
     end,
   },
+  -- Two Windows-specific fixes over yazi.nvim's build_plugin helper:
+  -- 1. yazi 26 on Windows reads its config from %APPDATA%\yazi\config, NOT
+  --    ~/.config/yazi (the helper's default).
+  -- 2. The helper installs via fs_symlink, which fails with EPERM without
+  --    Developer Mode. Plain recursive copies work everywhere.
+  local yazi_config_dir = vim.env.YAZI_CONFIG_HOME
+    or vim.fs.joinpath(vim.env.APPDATA or vim.fn.expand "~", "yazi", "config")
+  local function copy_tree(src, dst)
+    vim.fn.mkdir(dst, "p")
+    for name, ftype in vim.fs.dir(src) do
+      if name == ".git" then -- don't ship repo internals into the yazi config
+        goto continue
+      end
+      local s, d = vim.fs.joinpath(src, name), vim.fs.joinpath(dst, name)
+      if ftype == "directory" then
+        copy_tree(s, d)
+      else
+        assert(vim.uv.fs_copyfile(s, d), "failed to copy " .. s)
+      end
+      ::continue::
+    end
+  end
+  local function install_yazi_plugin(src, name)
+    local to = vim.fs.joinpath(yazi_config_dir, "plugins", name)
+    vim.fn.delete(to, "rf")
+    copy_tree(src, to)
+  end
   {
-    -- https://github.com/yazi-rs/plugins
+    -- https://github.com/yazi-rs/plugins (official collection, GitHub-hosted)
     "yazi-rs/plugins",
     name = "yazi-rs-plugins",
     lazy = true,
     build = function(plugin)
-      require("yazi.plugin").build_plugin(plugin, {
-        sub_dir = "git.yazi",
-      })
+      install_yazi_plugin(vim.fs.joinpath(plugin.dir, "git.yazi"), "git.yazi")
+    end,
+  },
+  {
+    -- flash.nvim-style jumping inside yazi: press F, type the first character
+    -- of an entry, land on it. GitHub-hosted replacement for the gitee-only
+    -- easyjump.yazi (see docs/maintenance.md → Deliberately excluded plugins).
+    "yazi-rs/plugins",
+    name = "yazi-rs-plugins-jump-to-char",
+    lazy = true,
+    build = function(plugin)
+      install_yazi_plugin(vim.fs.joinpath(plugin.dir, "jump-to-char.yazi"), "jump-to-char.yazi")
     end,
   },
   {
     "ndtoan96/ouch.yazi",
     lazy = true,
     build = function(plugin)
-      require("yazi.plugin").build_plugin(plugin)
+      install_yazi_plugin(plugin.dir, "ouch.yazi")
     end,
   },
 --   {
