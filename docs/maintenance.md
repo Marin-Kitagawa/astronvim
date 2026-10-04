@@ -362,3 +362,12 @@ guards this with `if not _G.MiniIcons then require("mini.icons").setup() end`.
 `C:\Users\Ahri\neovim-plugin-inventory.md` lists every plugin on awesome-neovim
 (AI section excluded) marked with whether it is installed here. It lives outside this
 repo because it describes the machine, not the config.
+
+### Deliberately excluded plugins
+
+| Plugin | Reason |
+| --- | --- |
+| `easyjump.yazi` | Hosted on **gitee** (`gitee.com/DreamMaoMao/easyjump.yazi`). No gitee account here and none will be created; the spec was removed in `9c3684a`. Do not re-add. |
+
+When curating new plugins, only pick ones hosted on forges that work without an account
+(GitHub, GitLab, sourcehut, sr.ht-style clones) — anything behind gitee or similar is out.
