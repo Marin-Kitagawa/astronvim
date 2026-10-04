@@ -53,13 +53,13 @@ return {
     keys = {
       {
         "n",
-        "<Cmd>execute('normal! ' . vim.v.count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>",
+        "<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>",
         silent = true,
         desc = "Next search match (with lens)",
       },
       {
         "N",
-        "<Cmd>execute('normal! ' . vim.v.count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>",
+        "<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>",
         silent = true,
         desc = "Previous search match (with lens)",
       },

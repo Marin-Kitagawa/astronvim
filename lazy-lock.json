@@ -72,6 +72,6 @@
   "vim-illuminate": { "branch": "master", "commit": "1cc33d347c574c3bd21a4852fc9ffed677c1c58c" },
   "vim-wakatime": { "branch": "master", "commit": "9f8a1d3b9c6f3a948988a0896b3227c1e1f74a58" },
   "which-key.nvim": { "branch": "main", "commit": "fcbf4eea17cb299c02557d576f0d568878e354a4" },
-  "yazi-rs-plugins": { "branch": "main", "commit": "6229767f7fef39a2a78f5cee9122cc4dfb43f327" },
+  "yazi-rs-plugins-jump-to-char": { "branch": "main", "commit": "6229767f7fef39a2a78f5cee9122cc4dfb43f327" },
   "yazi.nvim": { "branch": "main", "commit": "4bc1d0ad67abe536b7944bf374bbdd806442a4ee" }
 }

@@ -112,7 +112,25 @@ return {
     picker = { enabled = true },
     quickfile = { enabled = true },
     scope = { enabled = true },
-    scroll = { enabled = true },
+    scroll = {
+      enabled = true,
+      animate = {
+        -- snacks.animate has no bare "sine": the 41 built-in easings are named
+        -- inSine / outSine / inOutSine / inQuad / ... (an unknown name breaks
+        -- WinScrolled with "attempt to call field 'easing'")
+        easing = "inOutSine",
+        duration = {
+          total = 450
+        }
+      },
+      animate_repeat = {
+        easing = "inOutSine",
+        delay = 150,
+        duration = {
+          total = 150
+        }
+      }
+    },
     statuscolumn = { enabled = true },
     words = { enabled = true },
     -- keybinds for these already existed below (<leader>z, <leader>Z, <leader>uD)
