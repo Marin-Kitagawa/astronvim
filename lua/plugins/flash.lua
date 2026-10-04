@@ -22,9 +22,15 @@ return {
       },
     },
   },
+  -- Visual-mode note: `s` in visual mode natively deletes the selection and
+  -- enters insert (same as `c`). Flash used to hijack it, so visual flash jump
+  -- now lives on `S` and visual treesitter select on `gS`. Nothing is lost:
+  -- native visual `S` (change lines) is identical to `C`, which still works.
   keys = {
-    { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash jump" },
-    { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash treesitter select" },
+    { "s", mode = { "n", "o" }, function() require("flash").jump() end, desc = "Flash jump" },
+    { "S", mode = { "n", "o" }, function() require("flash").treesitter() end, desc = "Flash treesitter select" },
+    { "S", mode = "x", function() require("flash").jump() end, desc = "Flash jump" },
+    { "gS", mode = { "n", "o", "x" }, function() require("flash").treesitter() end, desc = "Flash treesitter select" },
     { "r", mode = "o", function() require("flash").remote() end, desc = "Remote flash" },
     { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter search" },
     { "<C-s>", mode = "c", function() require("flash").toggle() end, desc = "Toggle flash search" },

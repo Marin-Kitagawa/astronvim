@@ -2,6 +2,27 @@ return {
   "folke/snacks.nvim",
   priority = 1000,
   lazy = false,
+  -- AstroNvim's base mappings are applied after snacks registers its `keys`,
+  -- which silently overwrote some of the bindings below (base `<Leader>/`,
+  -- `<Leader>e`, `<Leader>n` and `<Leader>bd` were winning). Re-declare the
+  -- intended bindings here so they are applied as part of astrocore's own
+  -- mapping table and actually take effect. Base functionality stays reachable:
+  -- comment toggle via native gcc/gc, `:enew`, `:Neotree`.
+  specs = {
+    {
+      "AstroNvim/astrocore",
+      opts = function(_, opts)
+        local maps = opts.mappings
+        maps.n["<leader>/"] = { function() Snacks.picker.grep() end, desc = "Grep" }
+        maps.n["<leader>e"] = { function() Snacks.explorer() end, desc = "File Explorer" }
+        maps.n["<leader>n"] = { function() Snacks.picker.notifications() end, desc = "Notification History" }
+        maps.n["<leader>bd"] = { function() Snacks.bufdelete() end, desc = "Delete Buffer" }
+        -- snacks' indent toggle took over base <Leader>ug (signcolumn toggle);
+        -- keep the signcolumn toggle reachable on a free key
+        maps.n["<Leader>uG"] = { function() require("astrocore.toggles").signcolumn() end, desc = "Toggle signcolumn" }
+      end,
+    },
+  },
   ---@type snacks.Config
   opts = {
     bigfile = { enabled = true },
@@ -139,7 +160,7 @@ return {
     { '<leader>s"', function() Snacks.picker.registers() end, desc = "Registers" },
     { '<leader>s/', function() Snacks.picker.search_history() end, desc = "Search History" },
     { "<leader>sa", function() Snacks.picker.autocmds() end, desc = "Autocmds" },
-    { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer Lines" },
+    -- duplicate of the `<leader>sb` in the Grep section above; removed the second one
     { "<leader>sc", function() Snacks.picker.command_history() end, desc = "Command History" },
     { "<leader>sC", function() Snacks.picker.commands() end, desc = "Commands" },
     { "<leader>sd", function() Snacks.picker.diagnostics() end, desc = "Diagnostics" },
@@ -170,12 +191,14 @@ return {
     { "<leader>Z",  function() Snacks.zen.zoom() end, desc = "Toggle Zoom" },
     { "<leader>.",  function() Snacks.scratch() end, desc = "Toggle Scratch Buffer" },
     { "<leader>S",  function() Snacks.scratch.select() end, desc = "Select Scratch Buffer" },
-    { "<leader>n",  function() Snacks.notifier.show_history() end, desc = "Notification History" },
+    -- duplicate of the `<leader>n` notifications picker at the top of this list; removed the second one
     { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Buffer" },
     { "<leader>cR", function() Snacks.rename.rename_file() end, desc = "Rename File" },
     { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" } },
     { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
-    { "<leader>un", function() Snacks.notifier.hide() end, desc = "Dismiss All Notifications" },
+    -- base keeps <Leader>un for the line-number toggle, so "Dismiss All
+    -- Notifications" moved here from <leader>un
+    { "<leader>sn", function() Snacks.notifier.hide() end, desc = "Dismiss All Notifications" },
     { "<c-/>",      function() Snacks.terminal() end, desc = "Toggle Terminal" },
     { "<c-_>",      function() Snacks.terminal() end, desc = "which_key_ignore" },
     { "]]",         function() Snacks.words.jump(vim.v.count1) end, desc = "Next Reference", mode = { "n", "t" } },
@@ -217,7 +240,9 @@ return {
         Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>uw")
         Snacks.toggle.option("relativenumber", { name = "Relative Number" }):map("<leader>uL")
         Snacks.toggle.diagnostics():map("<leader>ud")
-        Snacks.toggle.line_number():map("<leader>ul")
+        -- line_number toggle removed: identical to base <Leader>un, and it used to
+        -- clobber base <Leader>ul (statusline toggle) because VeryLazy fires after astrocore
+        -- Snacks.toggle.line_number():map("<leader>ul")
         Snacks.toggle.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 }):map("<leader>uc")
         Snacks.toggle.treesitter():map("<leader>uT")
         Snacks.toggle.option("background", { off = "light", on = "dark", name = "Dark Background" }):map("<leader>ub")
